@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using UnityUIKit.Components;
 using UnityUIKit.Core;
 using UnityUIKit.Core.GameObjects;
+using static UnityUIKit.GameObjects.Container;
 
 namespace UnityUIKit.GameObjects
 {
@@ -50,7 +51,10 @@ namespace UnityUIKit.GameObjects
         /// <summary>
         /// 文本托管的实例。
         /// </summary>
-        public IText Text = null;
+        public virtual IText Label
+        {
+            get => null;
+        }
 
         /// <summary>
         /// 创建对像
@@ -66,13 +70,21 @@ namespace UnityUIKit.GameObjects
                 BackgroundType = ImageType,
             });
 
+
             base.Create(active);
 
-            if(Text != null)
+            if(Label != null)
             {
-                //创建文本
-                Text.Create(active);
-                Text.SetParent(this);
+                var i = new FitterContainer()
+                {
+                    Name = "LableRoot",
+                    Group =
+                    {
+                        Direction = Direction.Horizontal,
+                    }
+                };
+                i.SetParent(this);
+                Label.SetParent(i);
             }
         }
     }

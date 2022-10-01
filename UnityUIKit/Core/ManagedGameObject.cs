@@ -26,7 +26,9 @@ namespace UnityUIKit.Core
     public abstract class ManagedGameObject : IManagedObject
     {
         private string name = null;
-
+        /// <summary>
+        /// 默认激活状态
+        /// </summary>
         public bool DefaultActive = true;
         public string Name
         {
@@ -43,6 +45,9 @@ namespace UnityUIKit.Core
         }
 
         public Dictionary<Type, ManagedComponent.ComponentAttributes> Components = new Dictionary<Type, ManagedComponent.ComponentAttributes>();
+        /// <summary>
+        /// 子对象集合，但是并非被很好地维护。
+        /// </summary>
         public List<ManagedGameObject> Children = new List<ManagedGameObject>();
 
 
@@ -68,7 +73,11 @@ namespace UnityUIKit.Core
         public LayoutElement LayoutElement => Get<LayoutElement>();
         public RectTransform RectTransform => Get<RectTransform>();
 
-
+        /// <summary>
+        /// 设置父对象
+        /// </summary>
+        /// <param name="managedGameObject"></param>
+        /// <param name="worldPositionStays"></param>
         public void SetParent(ManagedGameObject managedGameObject, bool worldPositionStays = false)
         {
             Parent = managedGameObject;
@@ -122,6 +131,6 @@ namespace UnityUIKit.Core
         /// <summary>
         /// 显然，获取父对象
         /// </summary>
-        public ManagedGameObject Parent;
+        public ManagedGameObject Parent = null;
     }
 }

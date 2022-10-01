@@ -1,91 +1,106 @@
-﻿//using System;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using UnityEngine;
-//using UnityEngine.UI;
-//using UnityUIKit.Components;
-//using UnityUIKit.Core;
-//using UnityUIKit.GameObjects;
+﻿using System;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using UnityUIKit.Components;
+using UnityUIKit.Core;
+using UnityUIKit.GameObjects;
 
-//namespace TaiwuUIKit.GameObjects
-//{
-//    public class TaiwuLabel : Container
-//    {
-//        private static readonly Image _background_subtitle;
-//        private static readonly Image _background_value;
+namespace TaiwuUIKit.GameObjects
+{
+    /// <summary>
+    /// 太吾风格的 Label
+    /// </summary>
+    public class TaiwuLabel : Container, IText
+    {
+        /// <summary>
+        /// 风格
+        /// </summary>
+        public enum Style
+        {
+            /// <summary>
+            /// 没有黑底+字体黄色
+            /// </summary>
+            None,
+            /// <summary>
+            /// 黑底+字体黄色，25号
+            /// </summary>
+            WithBlackBackground,
+            /// <summary>
+            /// 子标题，黑底+字体灰色
+            /// </summary>
+            Subtile,
+        }
+        /// <summary>
+        /// 显示类型
+        /// </summary>
+        public Style LableStyle = Style.None;
 
-//        static TaiwuLabel()
-//        {
-//            var Label = Resources.Load<GameObject>("prefabs/ui/views/ui_systemsetting").transform.Find("SystemSetting/SetBackup/BackupBack");
-//            _background_subtitle = Label.GetComponent<CImage>() as Image;
-//            _background_value = Label.Find("SEVolumeBack").GetComponent<CImage>() as Image;
-//        }
+        /// <summary>
+        /// 文本的本体
+        /// </summary>
+        public BaseText BaseLabel = new BaseText();
+        
+        /// <summary>
+        /// 文本的对齐方式
+        /// </summary>
+        public TextAlignmentOptions Alignment
+        {
+            get => BaseLabel.Alignment;
+            set => BaseLabel.Alignment = value;
+        }
+        /// <summary>
+        /// 是否描边
+        /// </summary>
+        public bool UseOutline
+        {
+            get => BaseLabel.UseOutline;
+            set => BaseLabel.UseOutline = value;
+        }
+        /// <summary>
+        /// 显示文本
+        /// </summary>
+        public string Text
+        {
+            get => BaseLabel.Text;
+            set => BaseLabel.Text = value;
+        }
 
-//        public enum Style
-//        {
-//            Subtitle,
-//            Value
-//        }
-//        public Style BackgroundStyle = Style.Subtitle;
+        /// <summary>
+        /// 创建文本
+        /// </summary>
+        /// <param name="active"></param>
+        /// <exception cref="ArgumentException">不支持的 LableStyle</exception>
+        public override void Create(bool active)
+        {
+            BaseLabel._Text.Color = new Color(0.9725f, 0.902f, 0.7569f, 1);
 
-//        public BaseText _Text = new BaseText();
+            switch (LableStyle)
+            {
+                case Style.WithBlackBackground:
+                    BackgroundImage = Resources.SpriteResource.Black_BGound;
+                    BackgroundType = Image.Type.Sliced;
+                    break;
+                case Style.Subtile:
+                    BackgroundImage = Resources.SpriteResource.Black_BGound;
+                    BaseLabel._Text.Color = new Color(0.7412f, 0.7412f, 0.7412f, 1f);
+                    BackgroundType = Image.Type.Sliced;
+                    break;
+                case Style.None:
+                    break;
+                default:
+                    throw new ArgumentException($"BoxModel with {LableStyle} is not supported");
+            }
 
-//        public TextAnchor Alignment
-//        {
-//            get => _Text.Alignment;
-//            set => _Text.Alignment = value;
-//        }
-//        public bool UseBoldFont
-//        {
-//            get => _Text.UseBoldFont;
-//            set => _Text.UseBoldFont = value;
-//        }
-//        public bool UseOutline
-//        {
-//            get => _Text.UseOutline;
-//            set => _Text.UseOutline = value;
-//        }
-//        public string Text
-//        {
-//            get => _Text.Text;
-//            set => _Text.Text = value;
-//        }
+            base.Create(active);
 
-//        public override void Create(bool active)
-//        {
+            BaseLabel.Name = $"Text.{Name}";
+            BaseLabel.SetParent(this);
 
-//            base.Create(active);
-
-//            _Text.Name = $"Text.{Name}";
-//            _Text.SetParent(this);
-
-//            Image bg;
-//            switch(BackgroundStyle)
-//            {
-//                case Style.Subtitle:
-//                    {
-//                        bg = _background_subtitle;
-//                        _Text._Text.Color = new Color(0.314f, 0.275f, 0.255f, 1);
-//                        _Text._Text.FontSize = 22;
-//                        break;
-//                    }
-//                case Style.Value:
-//                    {
-//                        bg = _background_value;
-//                        _Text._Text.Color = new Color(0.882f, 0.804f, 0.667f, 1);
-//                        break;
-//                    }
-//                default:
-//                    throw new ArgumentException($"BoxModel with {BackgroundStyle} is not supported");
-//            }
-
-//            var imger = Get<Image>();
-//            imger.type = bg.type;
-//            imger.sprite = bg.sprite;
-//            imger.color = bg.color;
-//            _Text._Text.FontSize = 20;
-//            _Text.Apply();
-//        }
-//    }
-//}
+            BaseLabel.Apply();
+        }
+    }
+}

@@ -27,10 +27,10 @@
 
 //            base.Create(active);
 
-//            _Text.RectTransform.anchoredPosition = new Vector2(20, 0);
-//            _Text.RectTransform.offsetMax = new Vector2(-20, 0);
-//            _Text._Text.Color = UnityUIKit.Core.UIKitHelper.HexToColor("C8B099FF");
-//            _Text.Apply();
+//            BaseLabel.RectTransform.anchoredPosition = new Vector2(20, 0);
+//            BaseLabel.RectTransform.offsetMax = new Vector2(-20, 0);
+//            BaseLabel.BaseLabel.Color = UnityUIKit.Core.UIKitHelper.HexToColor("C8B099FF");
+//            BaseLabel.Apply();
 
 //            m_Placeholder.RectTransform.anchoredPosition = new Vector2(20, 0);
 //            m_Placeholder.RectTransform.offsetMax = new Vector2(-20, 0);

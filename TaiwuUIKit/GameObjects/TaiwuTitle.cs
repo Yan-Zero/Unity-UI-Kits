@@ -11,7 +11,7 @@ using UnityUIKit.GameObjects;
 namespace TaiwuUIKit.GameObjects
 {
     /// <summary>
-    /// 标题栏
+    /// 标题栏 
     /// </summary>
     public class TaiwuTitle : Container
     {
@@ -20,23 +20,20 @@ namespace TaiwuUIKit.GameObjects
         /// </summary>
         public Direction Direction = Direction.Vertical;
 
-        private string text = "Default Content";
-        private TMPLabel Label;
+        private TaiwuLabel Label = new TaiwuLabel()
+        {
+            Text = "Default Content",
+        };
 
         /// <summary>
         /// 标题文本
         /// </summary>
         public string Text
         {
-            get => text;
+            get => Label.Text;
             set
             {
-                text = value;
-                if (Label != null)
-                {
-                    Label._Text.Content = text;
-                    Label.Apply();
-                }
+                Label.Text = value;
             }
         }
 
@@ -56,23 +53,9 @@ namespace TaiwuUIKit.GameObjects
 
             Element.PreferredSize = new List<float> { 0, 50 };
 
+            Children.Add(Label);
+
             base.Create(active);
-
-            // Default Label
-            Label = new TMPLabel()
-            {
-                Name = "Text",
-                _Text =
-                {
-                    FontSize = 24,
-                    Font = Resources.Others.Font_GB2312,
-                    Color = new Color(0.9725f, 0.902f, 0.7569f, 1),
-                    Content = text
-                }
-            };
-
-            Label.SetParent(RectTransform);
-
         }
     }
 }

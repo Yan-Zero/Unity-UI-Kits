@@ -10,18 +10,52 @@ using System.Text.RegularExpressions;
 
 namespace UnityUIKit.GameObjects
 {
-    public class Slider : UnityUIKit.Core.GameObjects.BoxElementGameObject
+    /// <summary>
+    /// 滑条
+    /// </summary>
+    public class Slider : BoxElementGameObject
     {
-        public virtual Image Res_SilderHandleImage => null;
-        public virtual Image Res_BackgroundImage => null;
-        public virtual Image Res_FillAreaImage => null;
+        /// <summary>
+        /// 背景图片
+        /// </summary>
+        public Sprite BackgroundImage = null;
+        /// <summary>
+        /// 背景类型
+        /// </summary>
+        public Image.Type BackgroundType = Image.Type.Simple;
+        /// <summary>
+        /// 滑条的 Handle
+        /// </summary>
+        public Sprite SliderHandleImage = null;
+        /// <summary>
+        /// 填充区域的 Sprite
+        /// </summary>
+        public Sprite FillAreaImage = null;
+        /// <summary>
+        /// 填充图片的 Type
+        /// </summary>
+        public Image.Type FillAreaType = Image.Type.Simple;
+        /// <summary>
+        /// Handle 的类型
+        /// </summary>
+        public Image.Type SliderHandleType = Image.Type.Simple;
 
-
-        protected ManagedGameObject Handle;
+        /// <summary>
+        /// 拖拽的按钮
+        /// </summary>
+        protected BoxPlainGameObject Handle;
+        /// <summary>
+        /// 懒得托管
+        /// </summary>
         public UnityEngine.UI.Slider UnitySlider;
-        public BoxModelGameObject BackgroundContainer;
+        /// <summary>
+        /// 背景
+        /// </summary>
+        public BoxElementGameObject BackgroundContainer;
 
-
+        /// <summary>
+        /// 最大值
+        /// </summary>
         protected float m_MaxValue = 100;
         protected float m_MinValue = 0;
         protected float m_NormalizedValue = 50;
@@ -29,6 +63,9 @@ namespace UnityUIKit.GameObjects
         protected bool m_wholeNumber = false;
         protected bool m_interactable = true;
 
+        /// <summary>
+        /// 可交互性
+        /// </summary>
         public bool Interactable
         {
             get => m_interactable;
@@ -38,6 +75,9 @@ namespace UnityUIKit.GameObjects
                 if (UnitySlider) UnitySlider.interactable = m_interactable;
             }
         }
+        /// <summary>
+        /// 最大值
+        /// </summary>
         public float MaxValue
         {
             get => m_MaxValue;
@@ -47,6 +87,9 @@ namespace UnityUIKit.GameObjects
                 if (UnitySlider) UnitySlider.maxValue = m_MaxValue;
             }
         }
+        /// <summary>
+        /// 最小值
+        /// </summary>
         public float MinValue
         {
             get => m_MinValue;
@@ -65,6 +108,9 @@ namespace UnityUIKit.GameObjects
                 if(UnitySlider) UnitySlider.normalizedValue = m_NormalizedValue;
             }
         }
+        /// <summary>
+        /// 自由滑动还是仅整数
+        /// </summary>
         public bool WholeNumber
         {
             get => m_wholeNumber;
@@ -74,6 +120,9 @@ namespace UnityUIKit.GameObjects
                 if (UnitySlider) UnitySlider.wholeNumbers = m_wholeNumber;
             }
         }
+        /// <summary>
+        /// 当前值
+        /// </summary>
         public float Value
         {
             get => m_Value;
@@ -84,30 +133,38 @@ namespace UnityUIKit.GameObjects
                     UnitySlider.value = m_Value;
             }
         }
+        /// <summary>
+        /// 方向
+        /// </summary>
         public UnityEngine.UI.Slider.Direction Direction = UnityEngine.UI.Slider.Direction.LeftToRight;
+        /// <summary>
+        /// 在值改变的时候调用
+        /// </summary>
         public Action<float,Slider> OnValueChanged;
 
+        /// <summary>
+        /// 创建新的 Slider 对象
+        /// </summary>
+        /// <param name="active"></param>
         public override void Create(bool active)
         {
             base.Create(active);
 
-            if (Res_BackgroundImage != null)
+            if (BackgroundImage != null)
             {
-                (BackgroundContainer = new BoxModelGameObject()
+                (BackgroundContainer = new Container()
                 {
-                    Name = "Background"
+                    Name = "Background",
+                    BackgroundType = BackgroundType,
+                    BackgroundImage = BackgroundImage,
                 }).SetParent(this);
-
-                var bg = BackgroundContainer.Get<Image>();
-                bg.type = Res_BackgroundImage.type;
-                bg.sprite = Res_BackgroundImage.sprite;
-                bg.color = Res_BackgroundImage.color;
 
                 BackgroundContainer.RectTransform.sizeDelta = Vector2.zero;
                 BackgroundContainer.RectTransform.anchorMin = Vector2.zero;
                 BackgroundContainer.RectTransform.anchorMax = Vector2.one;
 
-                BackgroundContainer.Get<UnityEngine.UI.LayoutElement>().ignoreLayout = true;
+                BackgroundContainer.Get<LayoutElement>().ignoreLayout = true;
+                Children.Add(BackgroundContainer);
             }
 
             var Slider = Get<UnityEngine.UI.Slider>();
@@ -118,35 +175,32 @@ namespace UnityUIKit.GameObjects
             Slider.value = m_Value;
             Slider.wholeNumbers = m_wholeNumber;
             Slider.interactable = m_interactable;
-            Slider.onValueChanged.AddListener(onValueChanged);
+            Slider.onValueChanged.AddListener(ValueChanged);
 
-            BoxElementGameObject fillArea;
-            new BoxModelGameObject()
+            if (FillAreaImage != null)
             {
-                Name = "Fill Area",
-                Group =
+                BoxModelGameObject fillArea = new BoxModelGameObject()
                 {
-                    Padding = { 5 },
-                    ControlChildHeight = false,
-                },
-                Children =
-                {
-                    (fillArea = new BoxElementGameObject()
+                    Name = "Fill Area",
+                    Group =
                     {
-                        Name = "Image"
-                    })
-                }
-            }.SetParent(this);
-            var sliderFillArea_image = fillArea.Get<Image>();
-            if (Res_FillAreaImage != null)
-            {
-                sliderFillArea_image.type = Res_FillAreaImage.type;
-                sliderFillArea_image.sprite = Res_FillAreaImage.sprite;
-                sliderFillArea_image.color = Res_FillAreaImage.color;
+                        Padding = { 5 },
+                        ControlChildHeight = false,
+                    },
+                    Children =
+                    {
+                        new Container()
+                        {
+                            Name = "Image",
+                            BackgroundImage = FillAreaImage,
+                            BackgroundType = FillAreaType
+                        }
+                    }
+                };
+                fillArea.SetParent(this);
+                Slider.fillRect = fillArea.RectTransform;
+                Slider.fillRect.sizeDelta = Vector2.zero;
             }
-            Slider.fillRect = sliderFillArea_image.rectTransform.parent.gameObject.GetComponent<RectTransform>();
-            Slider.fillRect.sizeDelta = Vector2.zero;
-
 
             ManagedGameObject i;
             (i = new BoxElementGameObject()
@@ -154,37 +208,37 @@ namespace UnityUIKit.GameObjects
                 Name = "Handle Slide Area",
                 Children =
                 {
-                    (Handle = new BoxModelGameObject()
+                    (Handle = new BoxPlainGameObject()
                     {
-                        Name = "Handle"
+                        Name = "Handle",
+                        Rect =
+                        {
+                            AnchorMax = Vector2.one,
+                            AnchorMin = new Vector2(1, 0)
+                        }
                     })
                 }
             }).SetParent(this);
-
-            i.RectTransform.anchoredPosition = Vector2.zero;
-            i.RectTransform.pivot = Vector2.zero;
-            i.RectTransform.anchorMax = new Vector2(1, 0.5f);
-            i.RectTransform.anchorMin = new Vector2(0, 0.5f);
-            var tempVec = this.RectTransform.sizeDelta;
-            tempVec.y = 0;
-            i.RectTransform.sizeDelta = tempVec;
-
-
-            Handle.RectTransform.anchoredPosition = Vector2.zero;
-            var silderHandle_image = Handle.Get<Image>();
-            if (Res_SilderHandleImage != null)
+            if (SliderHandleImage != null)
             {
-                silderHandle_image.type = Res_SilderHandleImage.type;
-                silderHandle_image.sprite = Res_SilderHandleImage.sprite;
-                silderHandle_image.color = Res_SilderHandleImage.color;
-
-                Slider.image = silderHandle_image;
+                Handle.Get<Image>().sprite = SliderHandleImage;
+                Handle.Get<Image>().type = SliderHandleType;
+                Slider.image = Handle.Get<Image>();
             }
-            Slider.handleRect = silderHandle_image.rectTransform;
+
+
+            i.RectTransform.anchorMax = Vector2.one;
+            i.RectTransform.sizeDelta = i.RectTransform.anchorMin = Vector2.zero;
+            Slider.handleRect = Handle.RectTransform;
+            
             UnitySlider = Slider;
         }
 
-        private void onValueChanged(float value)
+        /// <summary>
+        /// 在值改变的时候调用
+        /// </summary>
+        /// <param name="value"></param>
+        protected virtual void ValueChanged(float value)
         {
             OnValueChanged?.Invoke(value, this);
         }

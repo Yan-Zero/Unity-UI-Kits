@@ -17,7 +17,6 @@ namespace UnityUIKit.GameObjects
 		/// 更改值时候调用
 		/// </summary>
 		public Action<bool, Toggle> onValueChanged = delegate {} ;
-
 		/// <summary>
 		/// 是否选中
 		/// </summary>
@@ -33,11 +32,22 @@ namespace UnityUIKit.GameObjects
 			}
 		}
 		private bool m_isOn = false;
-
-		/// <summary>
-		/// 预设大小
-		/// </summary>
-		public List<float> PreferredSize = new List<float> { 0, 50 };
+        /// <summary>
+        /// 交互性
+        /// </summary>
+        public override bool Interactable
+        {
+            get => m_interactable;
+            set
+            {
+                m_interactable = value;
+                if (Created) Get<UnityEngine.UI.Toggle>().interactable = m_interactable;
+            }
+        }
+        /// <summary>
+        /// 预设大小
+        /// </summary>
+        public List<float> PreferredSize = new List<float> { 0, 50 };
 
 		/// <summary>
 		/// 创建 Toggle 对象
@@ -56,7 +66,11 @@ namespace UnityUIKit.GameObjects
             toggle.onValueChanged.AddListener(OnValueChanged_Invoke);
 		}
 
-		private void OnValueChanged_Invoke(bool isOn)
+		/// <summary>
+		/// 显然，是为了让子类重写的
+		/// </summary>
+		/// <param name="isOn"></param>
+		protected virtual void OnValueChanged_Invoke(bool isOn)
 		{
 			onValueChanged?.Invoke(isOn, this);
 		}

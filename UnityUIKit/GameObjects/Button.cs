@@ -17,7 +17,11 @@ namespace UnityUIKit.GameObjects
 		/// 点击的回调函数
 		/// </summary>
 		public Action<Button> OnClick;
-		private void OnClick_Invoke()
+
+		/// <summary>
+		/// 为了方便后人（类）罢了。
+		/// </summary>
+		protected virtual void OnClick_Invoke()
 		{
 			OnClick?.Invoke(this);
 		}
@@ -46,11 +50,11 @@ namespace UnityUIKit.GameObjects
 		/// <param name="active"></param>
 		public override void Create(bool active)
 		{
-			base.Create(active);
+            base.Create(active);
 
 			UnityButton = Get<UnityEngine.UI.Button>();
 			UnityButton.onClick.AddListener(OnClick_Invoke);
-			UnityButton.image = Children.Find((x)=> x.Name == "Image").Get<Image>();
+			UnityButton.image = Children.Find((x)=> x.Name == "Image")?.Get<Image>();
 			UnityButton.interactable = m_interactable;
 		}
 	}

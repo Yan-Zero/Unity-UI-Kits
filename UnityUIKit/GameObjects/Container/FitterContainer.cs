@@ -23,11 +23,23 @@ namespace UnityUIKit.GameObjects
 {
     public partial class Container
     {
+        /// <summary>
+        /// 会自动调整大小的
+        /// </summary>
         public class FitterContainer : BoxAutoSizeModelGameObject
         {
-            public Image BackgroundImage = null;
+            /// <summary>
+            /// 背景图片
+            /// </summary>
+            public Sprite BackgroundImage = null;
+            /// <summary>
+            /// 背景颜色
+            /// </summary>
             public Color? BackgroundColor = null;
-
+            /// <summary>
+            /// 背景图片类型
+            /// </summary>
+            public Image.Type BackgroundType = Image.Type.Simple;
 
             public Image Background => Get<Image>();
 
@@ -37,17 +49,11 @@ namespace UnityUIKit.GameObjects
 
                 if (BackgroundImage)
                 {
-                    var image = BackgroundImage;
-
-                    Background.type = image.type;
-                    Background.sprite = image.sprite;
-                    Background.color = image.color;
+                    Background.type = BackgroundType;
+                    Background.sprite = BackgroundImage;
                 }
-
                 if (BackgroundColor.HasValue)
-                {
                     Background.color = BackgroundColor.Value;
-                }
             }
         }
     }

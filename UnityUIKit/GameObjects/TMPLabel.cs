@@ -40,10 +40,7 @@ namespace UnityUIKit.GameObjects
         /// </summary>
         public string Text
         {
-            get
-            {
-                return _Text.Content;
-            }
+            get =>_Text.Content;
             set
             {
                 _Text.Content = value;

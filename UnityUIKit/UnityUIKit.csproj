@@ -90,11 +90,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <Compile Include="Components\BoxElement.cs" />
     <Compile Include="Components\BoxGrid.cs" />
     <Compile Include="Components\BoxGroup.cs" />
+    <Compile Include="Components\BoxRect.cs" />
     <Compile Include="Components\BoxSizeFitter.cs" />
     <Compile Include="Components\TextControl.cs" />
     <Compile Include="Core\ComponentAttributes.cs" />
     <Compile Include="Core\Enums.cs" />
     <Compile Include="Core\GameObjects\BoxAutoSizeModelGameObject.cs" />
+    <Compile Include="Core\GameObjects\BoxPlainGameObject.cs" />
     <Compile Include="Core\GameObjects\BoxSizeFitterGameObject.cs" />
     <Compile Include="Core\GameObjects\BoxElementGameObject.cs" />
     <Compile Include="Core\GameObjects\BoxGirdGameObject.cs" />

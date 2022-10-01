@@ -1,200 +1,246 @@
-﻿//using System;
-//using System.Collections.Generic;
-//using System.Linq;
-//using System.Text;
-//using System.Threading.Tasks;
-//using UnityEngine;
-//using UnityEngine.UI;
-//using UnityUIKit.Core;
-//using UnityUIKit.Core.GameObjects;
-//using UnityUIKit.GameObjects;
+﻿using Microsoft.SqlServer.Server;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
+using UnityUIKit.Components;
+using UnityUIKit.Core;
+using UnityUIKit.Core.GameObjects;
+using UnityUIKit.GameObjects;
 
-//namespace TaiwuUIKit.GameObjects
-//{
-//    /// <summary>
-//    /// 太吾标准风格的 Toggle
-//    /// </summary>
-//    public class TaiwuToggle : UnityUIKit.GameObjects.Toggle
-//    {
-//        // Load static background image
-//        private static readonly PointerEnter _pointerEnter;
-//        private static readonly PointerClick _pointerClick;
-//        private static readonly ColorBlock _colors;
-//        private static readonly Image _BackgroundImage;
+namespace TaiwuUIKit.GameObjects
+{
+    /// <summary>
+    /// 太吾标准风格的 Toggle
+    /// </summary>
+    public class TaiwuToggle : UnityUIKit.GameObjects.Toggle, Resources.Others.ITaiwuSound
+    { 
+        private List<string> tipParm = new List<string>() { "", "" };
+        /// <summary>
+        /// Tip 的标题
+        /// </summary>
+        public string TipTitle
+        {
+            get => tipParm[0];
+            set
+            {
+                tipParm[0] = value;
+                if (Created) Get<MouseTipDisplayer>().PresetParam = tipParm.ToArray();
+            }
+        }
+        /// <summary>
+        /// Tip 的 内容
+        /// </summary>
+        public string TipContent
+        {
+            get => tipParm[1];
+            set
+            {
+                tipParm[1] = value;
+                if (Created) Get<MouseTipDisplayer>().PresetParam = tipParm.ToArray();
+            }
+        }
 
-//        public override Image Res_Image => _BackgroundImage;
-//        public virtual PointerEnter Res_PointerEnter => _pointerEnter;
-//        public virtual PointerClick Res_PointerClick => _pointerClick;
-//        public override ColorBlock Res_Colors => _colors;
+        /// <summary>
+        /// 文本标签（实际上是 TaiwuLabel 类型的）
+        /// </summary>
+        private TaiwuLabel m_Label = new TaiwuLabel()
+        {
+            Name = "Lable"
+        };
+        /// <summary>
+        /// 实际上是 TaiwuLabel，可以直接 as TaiwuLabel。
+        /// </summary>
+        public override IText Label => m_Label;
+        /// <summary>
+        /// 文本内容
+        /// </summary>
+        public string Text
+        {
+            get => Label?.Text;
+            set
+            {
+                if (Label != null)
+                    Label.Text = value;
+            }
+        }
 
-//        static TaiwuToggle()
-//        {
-//            var SetScreenToggle = Resources.Load<GameObject>("prefabs/ui/views/ui_systemsetting").transform.Find("SystemSetting/SetScreen/FullScreenToggle,702");
-//            _pointerEnter = SetScreenToggle.GetComponent<PointerEnter>();
-//            _pointerClick = SetScreenToggle.GetComponent<PointerClick>();
-//            _BackgroundImage = SetScreenToggle.GetComponent<CToggle>().image;
-//            _colors = new ColorBlock()
-//            {
-//                normalColor = new Color32(251,251,251,255),
-//                highlightedColor = new Color32(245, 245, 245,255),
-//                pressedColor = new Color32(142, 142, 142, 255),
-//                disabledColor = new Color32(75, 75, 75, 255),
-//                colorMultiplier = 1,
-//                fadeDuration = 0.1f
-//            };
-//        }
+        /// <summary>
+        /// 使用 OutLine
+        /// </summary>
+        public bool UseOutline
+        {
+            get => (Label as BaseText).UseOutline;
+            set
+            {
+                (Label as BaseText).UseOutline = value;
+            }
+        }
+        /// <summary>
+        /// 鼠标点击的声音
+        /// </summary>
+        public string LeftClick_AudioKey
+        {
+            get => clickAudioKey;
+            set => clickAudioKey = value;
+        }
+        private string clickAudioKey = "ui_default_click_left";
 
+        /// <summary>
+        /// 动画变更
+        /// </summary>
+        /// <param name="isOn"></param>
+        protected override void OnValueChanged_Invoke(bool isOn)
+        {
+            if(isOn)
+            {
+                Hover?.Children[0].SetActive(true);
+                Hover?.Children[1].SetActive(false);
+                Normal?.Children[0].SetActive(true);
+                Normal?.Children[1].SetActive(false);
+            }
+            else
+            {
+                Hover?.Children[0].SetActive(false);
+                Hover?.Children[1].SetActive(true);
+                Normal?.Children[0].SetActive(false);
+                Normal?.Children[1].SetActive(true);
+            }
+            base.OnValueChanged_Invoke(isOn);
+        }
+        /// <summary>
+        /// Hover 的组件
+        /// </summary>
+        public Block Hover = null;
+        /// <summary>
+        /// Normal 的组件
+        /// </summary>
+        public Block Normal = null;
+        /// <summary>
+        /// 创建组件
+        /// </summary>
+        /// <param name="active"></param>
+        public override void Create(bool active = true)
+        {
+            if (Element.PreferredSize.Count == 0)
+                Element.PreferredSize = PreferredSize;
 
-//        private List<string> TipParm = new List<string>() { "", "" };
-//        /// <summary>
-//        /// Tip 的标题
-//        /// </summary>
-//        public string TipTitle
-//        {
-//            get => TipParm[0];
-//            set
-//            {
-//                TipParm[0] = value;
-//                if (Created) Get<MouseTipDisplayer>().param = TipParm.ToArray();
-//            }
-//        }
-//        /// <summary>
-//        /// Tip 的 内容，已废弃
-//        /// 为了二进制兼容保留原接口
-//        /// </summary>
-//        [Obsolete("请使用 TipContent 来代替 TipContant", false)]
-//        public string TipContant
-//        {
-//            get => TipParm[1];
-//            set
-//            {
-//                TipParm[1] = value;
-//                if (Created) Get<MouseTipDisplayer>().param = TipParm.ToArray();
-//            }
-//        }
+            // 大体思路是，先初始化完成后，让 Image 成为 Hover。
+            Image = Resources.SpriteResource.Toggle_Hover;
+            ImageType = UnityEngine.UI.Image.Type.Sliced;
+            Normal = new Block()
+            {
+                Name = "Normal",
+                BackgroundImage = Resources.SpriteResource.Toggle_Normal,
+                BackgroundType = UnityEngine.UI.Image.Type.Sliced,
+                Children =
+                {
+                    new BoxPlainGameObject()
+                    {
+                        Name = "On",
+                        Rect =
+                        {
+                            AnchorMin = new Vector2(1,1),
+                            AnchorMax = new Vector2(1,1),
+                            SizeDelta = new Vector2(19, 18),
+                            AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        },
+                        DefaultActive = IsOn
+                    },
+                    new BoxPlainGameObject()
+                    {
+                        Name = "Off",
+                        Rect =
+                        {
+                            AnchorMin = new Vector2(1,1),
+                            AnchorMax = new Vector2(1,1),
+                            SizeDelta = new Vector2(10, 10),
+                            AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        },
+                        DefaultActive = !IsOn
+                    }
+                }
+            };
+            Children.Add(Normal);
 
-//        /// <summary>
-//        /// Tip 的 内容
-//        /// </summary>
-//        public string TipContent
-//        {
-//            get => TipParm[1];
-//            set
-//            {
-//                TipParm[1] = value;
-//                if (Created) Get<MouseTipDisplayer>().param = TipParm.ToArray();
-//            }
-//        }
+            base.Create(active);
+            var Label = this.Label as TaiwuLabel;
+            Label.SetParent(this);
+            UnityEngine.Object.Destroy(Label.BaseLabel.Get<ContentSizeFitter>());
+            Label.Get<LayoutElement>().ignoreLayout = true;
+            Label.RectTransform.sizeDelta = Vector2.zero;
+            Label.RectTransform.anchoredPosition = Vector2.zero;
+            Label.RectTransform.anchorMin = Vector2.zero;
+            Label.RectTransform.anchorMax = Vector2.one;
 
-//        /// <summary>
-//        /// 文本表情（实际上是 BaseText 类型的）
-//        /// </summary>
-//        public override Label Label => m_Label;
-//        private BaseText m_Label = new BaseText();
+            if (!string.IsNullOrEmpty(TipTitle) || !string.IsNullOrEmpty(TipContent))
+            {
+                Get<MouseTipDisplayer>().PresetParam = tipParm.ToArray();
+                Get<MouseTipDisplayer>().Type = TipType.Simple;
+            }
+            var Toggle = Get<UnityEngine.UI.Toggle>();
+            Toggle.image = null;
 
-//        /// <summary>
-//        /// 使用粗体
-//        /// </summary>
-//        public bool UseBoldFont
-//        {
-//            get
-//            {
-//                return (Label as BaseText).UseBoldFont;
-//            }
-//            set
-//            {
-//                (Label as BaseText).UseBoldFont = value;
-//            }
-//        }
+            Normal.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
+            Normal.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
 
-//        /// <summary>
-//        /// 使用 OutLine
-//        /// </summary>
-//        public bool UseOutline
-//        {
-//            get
-//            {
-//                return (Label as BaseText).UseOutline;
-//            }
-//            set
-//            {
-//                (Label as BaseText).UseOutline = value;
-//            }
-//        }
+            // 虽然此刻 Hover 自己有背景，但是可以被子对象覆盖。
+            Hover = Children.Find((x) => x.Name == "Image") as Block;
+            Hover.Name = "Hover";
+            Hover.Children = new List<ManagedGameObject>(){
+                new BoxPlainGameObject()
+                {
+                    Name = "On",
+                    Rect =
+                    {
+                        AnchorMin = new Vector2(1,1),
+                        AnchorMax = new Vector2(1,1),
+                        SizeDelta = new Vector2(19, 18),
+                        AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                    },
+                    DefaultActive = IsOn
+                },
+                new BoxPlainGameObject()
+                {
+                    Name = "Off",
+                    Rect =
+                    {
+                        AnchorMin = new Vector2(1,1),
+                        AnchorMax = new Vector2(1,1),
+                        SizeDelta = new Vector2(10, 10),
+                        AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                    },
+                    DefaultActive = !IsOn
+                }
+            };
+            foreach (var i in Hover.Children) i.SetParent(Hover);
+            Hover.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
+            Hover.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
 
-//        /// <summary>
-//        /// 初始化
-//        /// </summary>
-//        public TaiwuToggle()
-//        {
-//            FontColor = Color.white;
-//        }
+            Hover.RectTransform.anchorMax = Normal.RectTransform.anchorMax = new Vector2(1, 1);
+            Hover.RectTransform.sizeDelta = Normal.RectTransform.sizeDelta =
+            Hover.RectTransform.anchorMin = Normal.RectTransform.anchorMin = new Vector2(0, 0);
+             
+            PointerTrigger pointerEnter = Get<PointerTrigger>();
+            pointerEnter.EnterEvent = new UnityEngine.Events.UnityEvent();
+            pointerEnter.EnterEvent.AddListener(() =>
+            {
+                Hover.SetActive(true);
+                Normal.SetActive(false);
+            });
+            pointerEnter.ExitEvent = new UnityEngine.Events.UnityEvent();
+            pointerEnter.ExitEvent.AddListener(() =>
+            {
+                Hover.SetActive(false);
+                Normal.SetActive(true);
+            });
 
-//        /// <summary>
-//        /// 创建组件
-//        /// </summary>
-//        /// <param name="active"></param>
-//        public override void Create(bool active = true)
-//        {
-//            if(Element.PreferredSize.Count == 0)
-//                Element.PreferredSize = PreferredSize;
-
-//            base.Create(active);
-//            UnityEngine.Object.Destroy(Label.Get<ContentSizeFitter>());
-//            Label.Get<LayoutElement>().ignoreLayout = true;
-//            Label.RectTransform.sizeDelta = Vector2.zero;
-//            Label.RectTransform.anchoredPosition = Vector2.zero;
-//            Label.RectTransform.anchorMin = Vector2.zero;
-//            Label.RectTransform.anchorMax = Vector2.one;
-
-//            if (!string.IsNullOrEmpty(TipTitle) || !string.IsNullOrEmpty(TipContant))
-//                Get<MouseTipDisplayer>().param = TipParm.ToArray();
-
-//            var Toggle = Get<UnityEngine.UI.Toggle>();
-//            Toggle.transition = Selectable.Transition.ColorTint;
-//            Toggle.colors = Res_Colors;
-
-//            BoxModelGameObject BackgroundContainer;
-//            (BackgroundContainer = new BoxModelGameObject()
-//            {
-//                Name = "Label"
-//            }).SetParent(this);
-
-//            var bgOn = BackgroundContainer.Get<Image>();
-//            bgOn.type = Res_Image.type;
-//            bgOn.sprite = Res_Image.sprite;
-//            bgOn.color = new Color(156f / 255, 54f / 255, 54f / 255, 1);
-
-//            BackgroundContainer.RectTransform.sizeDelta = Vector2.zero;
-//            BackgroundContainer.RectTransform.anchorMin = Vector2.zero;
-//            BackgroundContainer.RectTransform.anchorMax = Vector2.one;
-//            BackgroundContainer.RectTransform.SetAsFirstSibling();
-
-//            BackgroundContainer.Get<LayoutElement>().ignoreLayout = true;
-//            Toggle.graphic = bgOn;
-
-//            Get<Image>().color = new Color(50f / 255, 50f / 255, 50f / 255, 1);
-
-//            if (Res_PointerClick != null)
-//            {
-//                var pc = Get<PointerClick>();
-//                pc.playSE = Res_PointerClick.playSE;
-//                pc.SEKey = Res_PointerClick.SEKey;
-//            }
-//            if (Res_PointerEnter != null)
-//            {
-//                PointerEnter pointerEnter = Get<PointerEnter>();
-//                pointerEnter.changeSize = Res_PointerEnter.changeSize;
-//                pointerEnter.restSize = Res_PointerEnter.restSize;
-//                pointerEnter.xMirror = Res_PointerEnter.xMirror;
-//                pointerEnter.yMirror = Res_PointerEnter.yMirror;
-//                pointerEnter.move = Res_PointerEnter.move;
-//                pointerEnter.moveX = Res_PointerEnter.moveX;
-//                pointerEnter.moveSize = Res_PointerEnter.moveSize;
-//                pointerEnter.restMoveSize = Res_PointerEnter.restMoveSize;
-//                pointerEnter.SEKey = Res_PointerEnter.SEKey;
-//                pointerEnter.changeTarget = Res_PointerEnter.changeTarget;
-//            }
-//        }
-//    }
-//}
+            Get<SelectableCursorTrigger>().CursorSpriteNameOnActive = "sp_cursor_clickable";
+            Get<Resources.Others.PClick>()._Parent = this;
+        }
+    }
+}

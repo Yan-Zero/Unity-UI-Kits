@@ -24,7 +24,6 @@ namespace UnityUIKit.Core.GameObjects
     {
         public BoxSizeFitter.ComponentAttributes SizeFitter = new BoxSizeFitter.ComponentAttributes();
 
-        //[YamlIgnore]
         public BoxSizeFitter BoxSizeFitter => Get<BoxSizeFitter>();
 
         public override void Create(bool active)

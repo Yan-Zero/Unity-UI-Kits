@@ -45,6 +45,9 @@ namespace TaiwuUIKit.GameObjects
         /// 是否描边
         /// </summary>
         public bool UseOutline = true;
+        /// <summary>
+        /// 描边的颜色
+        /// </summary>
         public Color OutlineColor = new Color(0, 0, 0, 1);
 
         /// <summary>
@@ -54,6 +57,7 @@ namespace TaiwuUIKit.GameObjects
         public override void Create(bool active)
         {
             _Text.Font = Resources.Others.Font_GB2312;
+            _Text.FontSize = 24;
             base.Create(active);
 
             if (UseOutline) Get<Outline>().effectColor = OutlineColor;
