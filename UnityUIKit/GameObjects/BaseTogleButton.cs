@@ -85,6 +85,8 @@ namespace UnityUIKit.GameObjects
                 };
                 i.SetParent(this);
                 Label.SetParent(i);
+                i.RectTransform.anchorMin = i.RectTransform.sizeDelta = Vector2.zero;
+                i.RectTransform.anchorMax = Vector2.one;
             }
         }
     }

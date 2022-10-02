@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -136,11 +137,10 @@ namespace TaiwuUIKit.GameObjects
             });
 
             Get<SelectableCursorTrigger>().CursorSpriteNameOnActive = "sp_cursor_clickable";
-            Hover.Background.raycastTarget = false;
-            Normal.Background.raycastTarget = false;
-            Hover.RectTransform.anchorMax = Normal.RectTransform.anchorMax = new Vector2(1, 1);
+            Hover.Background.raycastTarget = Normal.Background.raycastTarget = false;
+            Hover.RectTransform.anchorMax = Normal.RectTransform.anchorMax = Vector2.one;
             Hover.RectTransform.sizeDelta = Normal.RectTransform.sizeDelta =
-            Hover.RectTransform.anchorMin = Normal.RectTransform.anchorMin = new Vector2(0, 0);
+                Hover.RectTransform.anchorMin = Normal.RectTransform.anchorMin = Vector2.zero;
 
             Get<CEmptyGraphic>();
         }

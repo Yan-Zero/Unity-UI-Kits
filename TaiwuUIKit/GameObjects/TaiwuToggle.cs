@@ -184,6 +184,7 @@ namespace TaiwuUIKit.GameObjects
             }
             var Toggle = Get<UnityEngine.UI.Toggle>();
             Toggle.image = null;
+            Toggle.transition = Selectable.Transition.None;
 
             Normal.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
             Normal.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
@@ -215,7 +216,7 @@ namespace TaiwuUIKit.GameObjects
                         AnchoredPosition = new Vector2(-7.5f, -7.2f)
                     },
                     DefaultActive = !IsOn
-                }
+                },
             };
             foreach (var i in Hover.Children) i.SetParent(Hover);
             Hover.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
@@ -224,7 +225,9 @@ namespace TaiwuUIKit.GameObjects
             Hover.RectTransform.anchorMax = Normal.RectTransform.anchorMax = new Vector2(1, 1);
             Hover.RectTransform.sizeDelta = Normal.RectTransform.sizeDelta =
             Hover.RectTransform.anchorMin = Normal.RectTransform.anchorMin = new Vector2(0, 0);
-             
+
+            Hover.SetActive(false);
+
             PointerTrigger pointerEnter = Get<PointerTrigger>();
             pointerEnter.EnterEvent = new UnityEngine.Events.UnityEvent();
             pointerEnter.EnterEvent.AddListener(() =>
@@ -241,6 +244,7 @@ namespace TaiwuUIKit.GameObjects
 
             Get<SelectableCursorTrigger>().CursorSpriteNameOnActive = "sp_cursor_clickable";
             Get<Resources.Others.PClick>()._Parent = this;
+            Get<CEmptyGraphic>();
         }
     }
 }
