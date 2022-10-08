@@ -60,11 +60,23 @@ namespace TaiwuUIKit.Resources
         /// <summary>
         /// Toggle不亮 sp_newgame_anniu_2_0
         /// </summary>
-        public readonly static Sprite Toggle_Normal;
+        public readonly static Sprite Toggle_Normal_OLD;
         /// <summary>
         /// Toggle高亮，sp_newgame_anniu_2_1
         /// </summary>
+        public readonly static Sprite Toggle_Hover_OLD;
+        /// <summary>
+        /// Toggle不亮 sp_anniu_14_0
+        /// </summary>
+        public readonly static Sprite Toggle_Off;
+        /// <summary>
+        /// Toggle高亮 sp_anniu_14_1
+        /// </summary>
         public readonly static Sprite Toggle_Hover;
+        /// <summary>
+        /// Toggle选中 sp_anniu_14_2
+        /// </summary>
+        public readonly static Sprite Toggle_On;
         /// <summary>
         /// Toggle 的右上角，亮，sp_newgame_anniu_3_0
         /// </summary>
@@ -109,10 +121,15 @@ namespace TaiwuUIKit.Resources
             No_Disable = sa.GetSprite("sp_popup_window_18");
             Rhombus_Normal = sa.GetSprite("sp_popup_window_6_0");
             Rhombus_Hover = sa.GetSprite("sp_popup_window_6_1");
-            Toggle_Normal = sa.GetSprite("sp_newgame_anniu_2_0");
-            Toggle_Hover = sa.GetSprite("sp_newgame_anniu_2_1");
+
+            Toggle_Normal_OLD = sa.GetSprite("sp_newgame_anniu_2_0");
+            Toggle_Hover_OLD = sa.GetSprite("sp_newgame_anniu_2_1");
             TPatch_Hover = sa.GetSprite("sp_newgame_anniu_3_0");
             TPatch_Normal = sa.GetSprite("sp_newgame_anniu_3_1");
+            Toggle_Off = sa.GetSprite("sp_anniu_14_0");
+            Toggle_Hover = sa.GetSprite("sp_anniu_14_1");
+            Toggle_On = sa.GetSprite("sp_anniu_14_2");
+
             SliderDot = sa.GetSprite("sp_huadongtiao_0_1");
             SliderBG = sa.GetSprite("sp_huadongtiao_0_0");
             SliderHandle_Normal = sa.GetSprite("sp_huadongtiao_1_0");

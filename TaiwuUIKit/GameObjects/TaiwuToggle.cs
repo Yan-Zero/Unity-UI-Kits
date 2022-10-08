@@ -19,6 +19,25 @@ namespace TaiwuUIKit.GameObjects
     /// </summary>
     public class TaiwuToggle : UnityUIKit.GameObjects.Toggle, Resources.Others.ITaiwuSound
     { 
+        /// <summary>
+        /// 开关风格
+        /// </summary>
+        public enum ToggleType
+        {
+            /// <summary>
+            /// 单个的（实际上就是最开始设置中的风格）
+            /// </summary>
+            Alone,
+            /// <summary>
+            /// 现在的
+            /// </summary>
+            Now,
+        }
+        /// <summary>
+        /// 开关风格
+        /// </summary>
+        public ToggleType Style = ToggleType.Now;
+
         private List<string> tipParm = new List<string>() { "", "" };
         /// <summary>
         /// Tip 的标题
@@ -96,19 +115,25 @@ namespace TaiwuUIKit.GameObjects
         /// <param name="isOn"></param>
         protected override void OnValueChanged_Invoke(bool isOn)
         {
-            if(isOn)
+            if (isOn)
             {
-                Hover?.Children[0].SetActive(true);
-                Hover?.Children[1].SetActive(false);
-                Normal?.Children[0].SetActive(true);
-                Normal?.Children[1].SetActive(false);
+                if (Style == ToggleType.Alone)
+                {
+                    Hover?.Children[0].SetActive(true);
+                    Hover?.Children[1].SetActive(false);
+                    Normal?.Children[0].SetActive(true);
+                    Normal?.Children[1].SetActive(false);
+                }
             }
             else
             {
-                Hover?.Children[0].SetActive(false);
-                Hover?.Children[1].SetActive(true);
-                Normal?.Children[0].SetActive(false);
-                Normal?.Children[1].SetActive(true);
+                if (Style == ToggleType.Alone)
+                {
+                    Normal?.Children[1].SetActive(true);
+                    Hover?.Children[1].SetActive(true);
+                    Hover?.Children[0].SetActive(false);
+                    Normal?.Children[0].SetActive(false);
+                }
             }
             base.OnValueChanged_Invoke(isOn);
         }
@@ -117,9 +142,13 @@ namespace TaiwuUIKit.GameObjects
         /// </summary>
         public Block Hover = null;
         /// <summary>
-        /// Normal 的组件
+        /// Normal/Off 的组件
         /// </summary>
         public Block Normal = null;
+        /// <summary>
+        /// On 的组件
+        /// </summary>
+        public Block On = null;
         /// <summary>
         /// 创建组件
         /// </summary>
@@ -129,13 +158,13 @@ namespace TaiwuUIKit.GameObjects
             if (Element.PreferredSize.Count == 0)
                 Element.PreferredSize = PreferredSize;
 
-            // 大体思路是，先初始化完成后，让 Image 成为 Hover。
-            Image = Resources.SpriteResource.Toggle_Hover;
+            Image = Style == ToggleType.Alone ? 
+                Resources.SpriteResource.Toggle_Hover_OLD : Resources.SpriteResource.Toggle_Hover;
             ImageType = UnityEngine.UI.Image.Type.Sliced;
-            Normal = new Block()
+            Normal = Style == ToggleType.Alone ? new Block()
             {
                 Name = "Normal",
-                BackgroundImage = Resources.SpriteResource.Toggle_Normal,
+                BackgroundImage = Resources.SpriteResource.Toggle_Normal_OLD,
                 BackgroundType = UnityEngine.UI.Image.Type.Sliced,
                 Children =
                 {
@@ -164,10 +193,35 @@ namespace TaiwuUIKit.GameObjects
                         DefaultActive = !IsOn
                     }
                 }
+            } : new Block()
+            {
+                Name = "Off",
+                BackgroundImage = Resources.SpriteResource.Toggle_Off,
+                BackgroundType = UnityEngine.UI.Image.Type.Sliced,
             };
             Children.Add(Normal);
-
+            if(Style != ToggleType.Alone)
+            {
+                On = new Block
+                {
+                    Name = "On",
+                    BackgroundImage = Resources.SpriteResource.Toggle_On,
+                    BackgroundType = UnityEngine.UI.Image.Type.Sliced,
+                };
+                Children.Add(On);
+            }
             base.Create(active);
+            if (Style == ToggleType.Alone)
+            {
+                Normal.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
+                Normal.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
+            }
+            else
+            {
+                On.RectTransform.anchorMax = new Vector2(1, 1);
+                On.RectTransform.sizeDelta = On.RectTransform.anchorMin = new Vector2(0, 0);
+            }
+
             var Label = this.Label as TaiwuLabel;
             Label.SetParent(this);
             UnityEngine.Object.Destroy(Label.BaseLabel.Get<ContentSizeFitter>());
@@ -176,7 +230,6 @@ namespace TaiwuUIKit.GameObjects
             Label.RectTransform.anchoredPosition = Vector2.zero;
             Label.RectTransform.anchorMin = Vector2.zero;
             Label.RectTransform.anchorMax = Vector2.one;
-
             if (!string.IsNullOrEmpty(TipTitle) || !string.IsNullOrEmpty(TipContent))
             {
                 Get<MouseTipDisplayer>().PresetParam = tipParm.ToArray();
@@ -186,60 +239,62 @@ namespace TaiwuUIKit.GameObjects
             Toggle.image = null;
             Toggle.transition = Selectable.Transition.None;
 
-            Normal.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
-            Normal.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
 
             // 虽然此刻 Hover 自己有背景，但是可以被子对象覆盖。
             Hover = Children.Find((x) => x.Name == "Image") as Block;
             Hover.Name = "Hover";
-            Hover.Children = new List<ManagedGameObject>(){
-                new BoxPlainGameObject()
-                {
-                    Name = "On",
-                    Rect =
+            if(Style == ToggleType.Alone)
+            { 
+                Hover.Children = new List<ManagedGameObject>(){
+                    new BoxPlainGameObject()
                     {
-                        AnchorMin = new Vector2(1,1),
-                        AnchorMax = new Vector2(1,1),
-                        SizeDelta = new Vector2(19, 18),
-                        AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        Name = "On",
+                        Rect =
+                        {
+                            AnchorMin = new Vector2(1,1),
+                            AnchorMax = new Vector2(1,1),
+                            SizeDelta = new Vector2(19, 18),
+                            AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        },
+                        DefaultActive = IsOn
                     },
-                    DefaultActive = IsOn
-                },
-                new BoxPlainGameObject()
-                {
-                    Name = "Off",
-                    Rect =
+                    new BoxPlainGameObject()
                     {
-                        AnchorMin = new Vector2(1,1),
-                        AnchorMax = new Vector2(1,1),
-                        SizeDelta = new Vector2(10, 10),
-                        AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        Name = "Off",
+                        Rect =
+                        {
+                            AnchorMin = new Vector2(1,1),
+                            AnchorMax = new Vector2(1,1),
+                            SizeDelta = new Vector2(10, 10),
+                            AnchoredPosition = new Vector2(-7.5f, -7.2f)
+                        },
+                        DefaultActive = !IsOn
                     },
-                    DefaultActive = !IsOn
-                },
-            };
-            foreach (var i in Hover.Children) i.SetParent(Hover);
-            Hover.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
-            Hover.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
+                };
+                foreach (var i in Hover.Children) i.SetParent(Hover);
+                Hover.Children[0].Get<Image>().sprite = Resources.SpriteResource.TPatch_Hover;
+                Hover.Children[1].Get<Image>().sprite = Resources.SpriteResource.TPatch_Normal;
+            }
 
             Hover.RectTransform.anchorMax = Normal.RectTransform.anchorMax = new Vector2(1, 1);
             Hover.RectTransform.sizeDelta = Normal.RectTransform.sizeDelta =
             Hover.RectTransform.anchorMin = Normal.RectTransform.anchorMin = new Vector2(0, 0);
 
             Hover.SetActive(false);
-
             PointerTrigger pointerEnter = Get<PointerTrigger>();
             pointerEnter.EnterEvent = new UnityEngine.Events.UnityEvent();
             pointerEnter.EnterEvent.AddListener(() =>
             {
                 Hover.SetActive(true);
                 Normal.SetActive(false);
+                On?.SetActive(false);
             });
             pointerEnter.ExitEvent = new UnityEngine.Events.UnityEvent();
             pointerEnter.ExitEvent.AddListener(() =>
             {
                 Hover.SetActive(false);
-                Normal.SetActive(true);
+                On?.SetActive(IsOn);
+                Normal.SetActive(!IsOn || On == null);
             });
 
             Get<SelectableCursorTrigger>().CursorSpriteNameOnActive = "sp_cursor_clickable";
